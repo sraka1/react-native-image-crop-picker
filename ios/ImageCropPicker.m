@@ -314,7 +314,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     } else {
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
-    imageCropVC.avoidEmptySpaceAroundImage = YES;
+  //  imageCropVC.avoidEmptySpaceAroundImage = YES;
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
