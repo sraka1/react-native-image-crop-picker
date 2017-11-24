@@ -143,7 +143,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
         
         UIImagePickerController *picker = [[UIImagePickerController alloc] init];
         picker.delegate = self;
-        picker.allowsEditing = [[[self options] objectForKey:@"cropping"] boolValue];
+        picker.allowsEditing = NO;
         picker.sourceType = UIImagePickerControllerSourceTypeCamera;
         if ([[self.options objectForKey:@"useFrontCamera"] boolValue]) {
             picker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
@@ -161,7 +161,7 @@ RCT_EXPORT_METHOD(openCamera:(NSDictionary *)options
 }
 
 - (void)imagePickerController:(UIImagePickerController *)picker didFinishPickingMediaWithInfo:(NSDictionary *)info {
-    UIImage *chosenImage = [[[self options] objectForKey:@"cropping"] boolValue] ? [info objectForKey:UIImagePickerControllerEditedImage] : [info objectForKey:UIImagePickerControllerOriginalImage];
+    UIImage *chosenImage = [info objectForKey:UIImagePickerControllerOriginalImage];
     UIImage *chosenImageT = [chosenImage fixOrientation];
     
     NSDictionary *exif;
@@ -244,61 +244,47 @@ RCT_EXPORT_METHOD(openPicker:(NSDictionary *)options
         
         dispatch_async(dispatch_get_main_queue(), ^{
             // init picker
-            if ([[self.options objectForKey:@"cropping"] boolValue]) {
-                UIImagePickerController *picker = [[UIImagePickerController alloc] init];
-                picker.delegate = self;
-                picker.allowsEditing = true;
-                picker.sourceType = UIImagePickerControllerSourceTypePhotoLibrary;
-//                if ([[self.options objectForKey:@"useFrontCamera"] boolValue]) {
-//                    picker.cameraDevice = UIImagePickerControllerCameraDeviceFront;
-//                }
-//
-//                dispatch_async(dispatch_get_main_queue(), ^{
-                    [[self getRootVC] presentViewController:picker animated:YES completion:nil];
- //               });
-            } else {
-                QBImagePickerController *imagePickerController =
-                [QBImagePickerController new];
-                imagePickerController.delegate = self;
-                imagePickerController.allowsMultipleSelection = [[self.options objectForKey:@"multiple"] boolValue];
-                imagePickerController.minimumNumberOfSelection = abs([[self.options objectForKey:@"minFiles"] intValue]);
-                imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
-                imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
-                
-                if ([self.options objectForKey:@"smartAlbums"] != nil) {
-                    NSDictionary *smartAlbums = @{
-                                                  @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
-                                                  @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
-                                                  @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
-                                                  @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
-                                                  @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
-                                                  };
-                    NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:5];
-                    for (NSString* album in [self.options objectForKey:@"smartAlbums"]) {
-                        if ([smartAlbums objectForKey:album] != nil) {
-                            [albumsToShow addObject:[smartAlbums objectForKey:album]];
-                        }
+            QBImagePickerController *imagePickerController =
+            [QBImagePickerController new];
+            imagePickerController.delegate = self;
+            imagePickerController.allowsMultipleSelection = [[self.options objectForKey:@"multiple"] boolValue];
+            imagePickerController.minimumNumberOfSelection = abs([[self.options objectForKey:@"minFiles"] intValue]);
+            imagePickerController.maximumNumberOfSelection = abs([[self.options objectForKey:@"maxFiles"] intValue]);
+            imagePickerController.showsNumberOfSelectedAssets = [[self.options objectForKey:@"showsSelectedCount"] boolValue];
+            
+            if ([self.options objectForKey:@"smartAlbums"] != nil) {
+                NSDictionary *smartAlbums = @{
+                                              @"UserLibrary" : @(PHAssetCollectionSubtypeSmartAlbumUserLibrary),
+                                              @"PhotoStream" : @(PHAssetCollectionSubtypeAlbumMyPhotoStream),
+                                              @"Panoramas" : @(PHAssetCollectionSubtypeSmartAlbumPanoramas),
+                                              @"Videos" : @(PHAssetCollectionSubtypeSmartAlbumVideos),
+                                              @"Bursts" : @(PHAssetCollectionSubtypeSmartAlbumBursts),
+                                              };
+                NSMutableArray *albumsToShow = [NSMutableArray arrayWithCapacity:5];
+                for (NSString* album in [self.options objectForKey:@"smartAlbums"]) {
+                    if ([smartAlbums objectForKey:album] != nil) {
+                        [albumsToShow addObject:[smartAlbums objectForKey:album]];
                     }
-                    imagePickerController.assetCollectionSubtypes = albumsToShow;
                 }
+                imagePickerController.assetCollectionSubtypes = albumsToShow;
+            }
+            
+            if ([[self.options objectForKey:@"cropping"] boolValue]) {
+                imagePickerController.mediaType = QBImagePickerMediaTypeImage;
+            } else {
+                NSString *mediaType = [self.options objectForKey:@"mediaType"];
                 
-                if ([[self.options objectForKey:@"cropping"] boolValue]) {
+                if ([mediaType isEqualToString:@"any"]) {
+                    imagePickerController.mediaType = QBImagePickerMediaTypeAny;
+                } else if ([mediaType isEqualToString:@"photo"]) {
                     imagePickerController.mediaType = QBImagePickerMediaTypeImage;
                 } else {
-                    NSString *mediaType = [self.options objectForKey:@"mediaType"];
-                    
-                    if ([mediaType isEqualToString:@"any"]) {
-                        imagePickerController.mediaType = QBImagePickerMediaTypeAny;
-                    } else if ([mediaType isEqualToString:@"photo"]) {
-                        imagePickerController.mediaType = QBImagePickerMediaTypeImage;
-                    } else {
-                        imagePickerController.mediaType = QBImagePickerMediaTypeVideo;
-                    }
-                    
+                    imagePickerController.mediaType = QBImagePickerMediaTypeVideo;
                 }
                 
-                [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
             }
+            
+            [[self getRootVC] presentViewController:imagePickerController animated:YES completion:nil];
         });
     }];
 }
@@ -328,7 +314,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     } else {
         imageCropVC.cropMode = RSKImageCropModeCustom;
     }
-    imageCropVC.avoidEmptySpaceAroundImage = YES;
+  //  imageCropVC.avoidEmptySpaceAroundImage = YES;
     imageCropVC.dataSource = self;
     imageCropVC.delegate = self;
     [imageCropVC setModalPresentationStyle:UIModalPresentationCustom];
@@ -610,15 +596,15 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     
     NSLog(@"id: %@ filename: %@", localIdentifier, filename);
     
-//    if ([[[self options] objectForKey:@"cropping"] boolValue]) {
-//        self.croppingFile = [[NSMutableDictionary alloc] init];
-//        self.croppingFile[@"sourceURL"] = sourceURL;
-//        self.croppingFile[@"localIdentifier"] = localIdentifier;
-//        self.croppingFile[@"filename"] = filename;
-//        NSLog(@"CroppingFile %@", self.croppingFile);
-//
-//        [self startCropping:image];
-//    } else {
+    if ([[[self options] objectForKey:@"cropping"] boolValue]) {
+        self.croppingFile = [[NSMutableDictionary alloc] init];
+        self.croppingFile[@"sourceURL"] = sourceURL;
+        self.croppingFile[@"localIdentifier"] = localIdentifier;
+        self.croppingFile[@"filename"] = filename;
+        NSLog(@"CroppingFile %@", self.croppingFile);
+        
+        [self startCropping:image];
+    } else {
         ImageResult *imageResult = [self.compression compressImage:image withOptions:self.options];
         NSString *filePath = [self persistFile:imageResult.data];
         if (filePath == nil) {
@@ -642,7 +628,7 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
                                                withSize:[NSNumber numberWithUnsignedInteger:imageResult.data.length]
                                                withData:[[self.options objectForKey:@"includeBase64"] boolValue] ? [imageResult.data base64EncodedStringWithOptions:0] : nil]);
         }]];
-  //  }
+    }
 }
 
 #pragma mark - CustomCropModeDelegates
