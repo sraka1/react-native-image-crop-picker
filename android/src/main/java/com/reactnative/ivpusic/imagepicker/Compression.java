@@ -21,6 +21,8 @@ class Compression {
         Integer maxWidth = options.hasKey("compressImageMaxWidth") ? options.getInt("compressImageMaxWidth") : null;
         Integer maxHeight = options.hasKey("compressImageMaxHeight") ? options.getInt("compressImageMaxHeight") : null;
         Double quality = options.hasKey("compressImageQuality") ? options.getDouble("compressImageQuality") : null;
+        String fileType = options.hasKey("fileType") ? options.getString("fileType") : null;
+        
 
         if (maxWidth == null && maxHeight == null && quality == null) {
             Log.d("image-crop-picker", "Skipping image compression");
@@ -29,11 +31,16 @@ class Compression {
 
         Log.d("image-crop-picker", "Image compression activated");
         Compressor compressor = new Compressor(activity)
-                .setCompressFormat(Bitmap.CompressFormat.JPEG)
-                .setDestinationDirectoryPath(Environment.getExternalStoragePublicDirectory(
+        if (fileType.toLowerCase().equals("png")) {
+            compressor.setCompressFormat(Bitmap.CompressFormat.PNG);
+        } else {
+            compressor.setCompressFormat(Bitmap.CompressFormat.JPEG);
+        }
+
+        compressor.setDestinationDirectoryPath(Environment.getExternalStoragePublicDirectory(
                         Environment.DIRECTORY_PICTURES).getAbsolutePath());
 
-        if (quality == null) {
+        if (quality == null || fileType.toLowerCase().equals("png")) {
             Log.d("image-crop-picker", "Compressing image with quality 100");
             compressor.setQuality(100);
         } else {

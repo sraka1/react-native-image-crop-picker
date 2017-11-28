@@ -74,7 +74,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
     private boolean hideBottomControls = false;
     private boolean enableRotationGesture = false;
     private ReadableMap options;
-
+    private String fileType = "jpg";
 
     //Grey 800
     private final String DEFAULT_TINT = "#424242";
@@ -126,6 +126,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         showCropGuidelines = options.hasKey("showCropGuidelines") ? options.getBoolean("showCropGuidelines") : showCropGuidelines;
         hideBottomControls = options.hasKey("hideBottomControls") ? options.getBoolean("hideBottomControls") : hideBottomControls;
         enableRotationGesture = options.hasKey("enableRotationGesture") ? options.getBoolean("enableRotationGesture") : enableRotationGesture;
+        fileType = options.hasKey("fileType") ? options.getString("fileType") : fileType;
         this.options = options;
     }
 
@@ -575,7 +576,11 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
 
     private void startCropping(Activity activity, Uri uri) {
         UCrop.Options options = new UCrop.Options();
-        options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        if (fileType.toLowerCase().equals("png")) {
+            options.setCompressionFormat(Bitmap.CompressFormat.PNG);
+        } else {
+            options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
+        }
         options.setCompressionQuality(100);
         options.setCircleDimmedLayer(cropperCircleOverlay);
         options.setShowCropGrid(showCropGuidelines);
@@ -593,7 +598,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
         }
         configureCropperColors(options);
 
-        UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + ".jpg")))
+        UCrop.of(uri, Uri.fromFile(new File(this.getTmpDir(activity), UUID.randomUUID().toString() + "." + fileType.toLowerCase())))
                 .withMaxResultSize(width, height)
                 .withAspectRatio(width, height)
                 .withOptions(options)
@@ -655,8 +660,6 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             }
 
             if (cropping) {
-                UCrop.Options options = new UCrop.Options();
-                options.setCompressionFormat(Bitmap.CompressFormat.JPEG);
                 startCropping(activity, uri);
             } else {
                 try {
@@ -717,7 +720,7 @@ class PickerModule extends ReactContextBaseJavaModule implements ActivityEventLi
             path.mkdirs();
         }
 
-        File image = File.createTempFile(imageFileName, ".jpg", path);
+        File image = File.createTempFile(imageFileName, "." + fileType.toLowerCase(), path);
 
         // Save a file: path for use with ACTION_VIEW intents
         mCurrentPhotoPath = "file:" + image.getAbsolutePath();

@@ -95,6 +95,7 @@ ImagePicker.clean().then(() => {
 | multiple                                |           bool (default false)           | Enable or disable multiple image selection |
 | includeBase64                           |           bool (default false)           | Enable or disable returning base64 data with image |
 | includeExif                           |           bool (default false)           | Include image exif data in the response |
+| fileType                           |           string enum ('jpg' or 'png', default 'jpg')           | Sets the file type of the resulting image. |
 | cropperActiveWidgetColor (android only) |       string (default `"#424242"`)       | When cropping image, determines ActiveWidget color. |
 | cropperStatusBarColor (android only)    |        string (default `#424242`)        | When cropping image, determines the color of StatusBar. |
 | cropperToolbarColor (android only)      |        string (default `#424242`)        | When cropping image, determines the color of Toolbar. |
@@ -108,7 +109,7 @@ ImagePicker.clean().then(() => {
 | compressVideoPreset (ios only)          |      string (default MediumQuality)      | Choose which preset will be used for video compression |
 | compressImageMaxWidth                   |          number (default none)           | Compress image with maximum width        |
 | compressImageMaxHeight                  |          number (default none)           | Compress image with maximum height       |
-| compressImageQuality                    |            number (default 1)            | Compress image with quality (from 0 to 1, where 1 is best quality) |
+| compressImageQuality                    |            number (default 1)            | Compress image with quality (from 0 to 1, where 1 is best quality) - ignored if fileType option is 'png' |
 | loadingLabelText (ios only)             | string (default "Processing assets...")  | Text displayed while photo is loading in picker |
 | mediaType                               |           string (default any)           | Accepted mediaType for image selection, can be one of: 'photo', 'video', or 'any' |
 | showsSelectedCount (ios only)           |           bool (default true)            | Whether to show the number of selected assets |

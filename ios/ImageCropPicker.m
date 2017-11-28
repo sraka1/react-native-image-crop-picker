@@ -64,6 +64,7 @@ RCT_EXPORT_MODULE();
                                 @"loadingLabelText": @"Processing assets...",
                                 @"mediaType": @"any",
                                 @"showsSelectedCount": @YES
+                                @"fileType": @"jpg"
                                 };
         self.compression = [[Compression alloc] init];
     }
@@ -758,7 +759,11 @@ RCT_EXPORT_METHOD(openCropper:(NSDictionary *)options
     // create temp file
     NSString *tmpDirFullPath = [self getTmpDirectory];
     NSString *filePath = [tmpDirFullPath stringByAppendingString:[[NSUUID UUID] UUIDString]];
-    filePath = [filePath stringByAppendingString:@".jpg"];
+    if ([[[self.options objectForKey:@"fileType"] lowercaseString] isEqual:@"png"]) {
+        filePath = [filePath stringByAppendingString:@".png"];
+    } else {
+        filePath = [filePath stringByAppendingString:@".jpg"];
+    }
     
     // save cropped file
     BOOL status = [data writeToFile:filePath atomically:YES];

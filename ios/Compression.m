@@ -74,8 +74,13 @@
         compressQuality = [NSNumber numberWithFloat:1];
     }
     
-    result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
-    result.mime = @"image/jpeg";
+    if ([[[self.options objectForKey:@"fileType"] lowercaseString] isEqual:@"png"]) {
+        result.data = UIImagePNGRepresentation(result.image);
+        result.mime = @"image/png";
+    } else {
+        result.data = UIImageJPEGRepresentation(result.image, [compressQuality floatValue]);
+        result.mime = @"image/jpeg";
+    }
     
     return result;
 }
