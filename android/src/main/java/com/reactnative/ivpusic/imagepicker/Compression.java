@@ -30,7 +30,7 @@ class Compression {
         }
 
         Log.d("image-crop-picker", "Image compression activated");
-        Compressor compressor = new Compressor(activity)
+        Compressor compressor = new Compressor(activity);
         if (fileType.toLowerCase().equals("png")) {
             compressor.setCompressFormat(Bitmap.CompressFormat.PNG);
         } else {

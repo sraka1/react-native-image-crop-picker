@@ -63,7 +63,7 @@ RCT_EXPORT_MODULE();
                                 @"compressVideoPreset": @"MediumQuality",
                                 @"loadingLabelText": @"Processing assets...",
                                 @"mediaType": @"any",
-                                @"showsSelectedCount": @YES
+                                @"showsSelectedCount": @YES,
                                 @"fileType": @"jpg"
                                 };
         self.compression = [[Compression alloc] init];

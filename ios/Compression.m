@@ -74,7 +74,7 @@
         compressQuality = [NSNumber numberWithFloat:1];
     }
     
-    if ([[[self.options objectForKey:@"fileType"] lowercaseString] isEqual:@"png"]) {
+    if ([[[options objectForKey:@"fileType"] lowercaseString] isEqual:@"png"]) {
         result.data = UIImagePNGRepresentation(result.image);
         result.mime = @"image/png";
     } else {
